@@ -8,14 +8,17 @@ const base_url = environment.base_url;
   providedIn: 'root'
 })
 export class CertificateService {
-  private user= localStorage.getItem('correo');
-  private password= localStorage.getItem('password');
+  token= localStorage.getItem('token');
   constructor( private http: HttpClient) { }
 
 
   certificarDocumento( id:string ,formData: any): Observable<any> {
 
-    return this.http.post(`${base_url}/notaria/certificate/${id}`, formData).pipe(
+    return this.http.post(`${base_url}/notaria/certificate/${id}`, formData,{
+      headers:{
+        'Authorization': `Bearer ${this.token}`
+      }
+    }).pipe(
       map((resp: any) => resp.message)
     );
 
@@ -23,11 +26,21 @@ export class CertificateService {
 
   obtenerConglomerado( id:string ): Observable<any> {
 
-    return this.http.post(`${base_url}/notaria/conglomeradoTemplate/${id}`,null).pipe(
+    return this.http.post(`${base_url}/notaria/conglomeradoTemplate/${id}`,null,{
+      headers:{ 
+        'Authorization': `Bearer ${this.token}`
+      }
+    }).pipe(
       map((resp: any) => {
-        console.log('Data de conglomerado',resp)
-        return resp
-    })
+        console.log('Dentro de map:', resp);
+        if (/**resp.status === 'success' &&*/ resp.data.base64conglomerado) {
+          console.log('Respuesta del servicio:', resp);
+          return resp.data.base64conglomerado;
+        } else {
+          console.error('Error en la respuesta del servicio:', resp);
+          return null;
+        }
+      })
     );
 
   }

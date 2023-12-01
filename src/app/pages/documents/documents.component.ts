@@ -1,6 +1,7 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UploadDocService } from 'src/app/services/upload-doc.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 
 @Component({
@@ -16,7 +17,7 @@ export class DocumentsComponent implements OnInit{
   public documentos: any = []
   currentPage: number = 1;
   totalDocumentos: number = this.documentos.length;
-
+  searchForm: FormGroup;
   lastDay: string = 'lastDay';
   last7Days: string = 'last7Days';
   last30Days: string = 'last30Days';
@@ -25,7 +26,13 @@ export class DocumentsComponent implements OnInit{
   constructor( 
       private documentService: UploadDocService,
       private router: Router,
-      private route: ActivatedRoute){}
+      private route: ActivatedRoute,
+      private formBuilder: FormBuilder){
+        this.searchForm = this.formBuilder.group({
+          rutClient: ['']
+        });
+
+      }
   ngOnInit(): void {
     this.showModal=!this.showModal;
     this.obtenerDocumentos();
@@ -41,15 +48,12 @@ export class DocumentsComponent implements OnInit{
     this.currentPage = page;
   }
   filterTableData() {
-      if (this.searchText) {
-        // Filtra la tabla solo si hay un término de búsqueda
-        this.filteredDocumentos = this.documentos.filter((documento:any) => {
-          return documento.rutClient.toLowerCase().includes(this.searchText.toLowerCase());
-        });
-      } else {
-        // Si no hay texto de búsqueda, muestra los datos originales
-        this.filteredDocumentos = this.documentos;
-      }
+    this.searchForm.valueChanges.subscribe(() => {
+      this.searchText = this.searchForm.value.rutClient;
+      this.filteredDocumentos = this.documentos.filter((documento: any) => {
+        return documento.rutClient.toLowerCase().includes(this.searchText.toLowerCase());
+      });
+    });
   }
   obtenerDocumentos(){
     this.documentService.obtenerDatos().subscribe((data)=>{

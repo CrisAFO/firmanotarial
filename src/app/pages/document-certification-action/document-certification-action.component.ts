@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { map } from 'rxjs';
 import { CertificateService } from 'src/app/services/certificate.service';
 import { SignDocumentService } from 'src/app/services/sign-document.service';
 import { UploadDocService } from 'src/app/services/upload-doc.service';
@@ -149,9 +150,22 @@ export class DocumentCertificationActionComponent implements OnInit{
 
   obtenerConglomerado(id:string) {
     this.certificateService.obtenerConglomerado(id)
+    /*
+    .pipe(
+      map((resp: any) => {
+        console.log('Dentro de map:', resp);
+        if (resp.status === 'success' && resp.data.document) {
+          console.log('Respuesta del servicio:', resp);
+          this.base64CongTemp = resp.data.document.base64Document
+        } else {
+          console.error('Error en la respuesta del servicio:', resp);
+        }
+      })
+    )*/
     .subscribe(
     (data) => {
       this.base64CongTemp = data;
+      console.log('b64',this.base64CongTemp)
     },
     (error) => {
       console.error('Error al obtener el conglomerado', error);

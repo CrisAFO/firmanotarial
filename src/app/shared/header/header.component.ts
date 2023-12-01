@@ -11,11 +11,9 @@ export class HeaderComponent {
   public sessionName = localStorage.getItem('nombre');
   public sessionEmail = localStorage.getItem('correo');
   public sessionRol = localStorage.getItem('rol');
-
   logOut(){
     localStorage.setItem('nombre','');
     localStorage.setItem('correo','');
     localStorage.setItem('rol','');
   }
-
 }

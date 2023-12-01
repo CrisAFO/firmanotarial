@@ -33,7 +33,6 @@ export class DocumentSignActionComponent implements OnInit{
     }
   }
   firmarDocumento() { 
-    console.log('id: ',this.id)
     let body = {
       signOne: this.fileBase64,
       email: localStorage.getItem('correo'),
@@ -46,7 +45,7 @@ export class DocumentSignActionComponent implements OnInit{
         if( mensaje = 'Documento agregado correctamente.'){
           this.loading=!this.loading;
           this.mostrarModal('¡Firma Exitosa!',false);
-
+          this.getDocumentData(this.id);
         }else{
           console.log("Mensaje del servidor:", mensaje);
         }

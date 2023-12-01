@@ -10,11 +10,13 @@ import { DocumentPolizaUploadComponent } from './document-poliza-upload/document
 import { DocumentDetailComponent } from './document-detail/document-detail.component';
 import { DocumentSignComponent } from './document-sign/document-sign.component';
 import { DocumentSignActionComponent } from './document-sign-action/document-sign-action.component';
+import { AuthGuard } from '../guards/auth.guard';
 
 export const routes: Routes = [
     {
         path: '',
         component: PagesComponent,
+        canActivate: [AuthGuard],
         children: [
           { path:'documents', component: DocumentsComponent },
           { path:'document-certification', component: DocumentCertificationComponent },
