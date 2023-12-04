@@ -8,6 +8,7 @@ import { Component } from '@angular/core';
 
 export class HeaderComponent {
 
+
   public sessionName = localStorage.getItem('nombre');
   public sessionEmail = localStorage.getItem('correo');
   public sessionRol = localStorage.getItem('rol');
@@ -16,4 +17,5 @@ export class HeaderComponent {
     localStorage.setItem('correo','');
     localStorage.setItem('rol','');
   }
+  
 }

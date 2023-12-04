@@ -1,7 +1,7 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UploadDocService } from 'src/app/services/upload-doc.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 
 @Component({
@@ -29,7 +29,7 @@ export class DocumentsComponent implements OnInit{
       private route: ActivatedRoute,
       private formBuilder: FormBuilder){
         this.searchForm = this.formBuilder.group({
-          rutClient: ['']
+          rutClient: ['', Validators.required]
         });
 
       }
@@ -48,12 +48,42 @@ export class DocumentsComponent implements OnInit{
     this.currentPage = page;
   }
   filterTableData() {
-    this.searchForm.valueChanges.subscribe(() => {
-      this.searchText = this.searchForm.value.rutClient;
-      this.filteredDocumentos = this.documentos.filter((documento: any) => {
-        return documento.rutClient.toLowerCase().includes(this.searchText.toLowerCase());
-      });
-    });
+    const searchTerm = this.searchForm.get('rutClient')?.value.toLowerCase();
+    console.log(searchTerm)
+    // Filtrar documentos basado en el rutClient
+    if (searchTerm.trim() === '') {
+      // Si el campo de búsqueda está vacío, mostrar todos los documentos
+      // Puedes ajustar esta lógica según tus necesidades
+      return this.documentos;
+    } else {
+      return this.documentos.filter((doc:any) => doc.rutClient.toLowerCase().includes(searchTerm));
+    }
+  }
+
+  formatRut() {
+    // Lógica para formatear el Rut de Chile
+    const rut = this.searchForm.get('rutClient')?.value;
+    if (rut) {
+      // Limpiar caracteres no válidos
+      const cleanedRut = rut.replace(/[^\dkK]+/g, '');
+  
+      // Dividir el rut en parte numérica y dígito verificador
+      const rutNumber = cleanedRut.slice(0, -1);
+      const rutVerifier = cleanedRut.slice(-1);
+  
+      // Formatear parte numérica con puntos
+      const formattedNumber = rutNumber.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  
+      // Unir las partes con guion y actualizar el valor del formulario
+      const formattedRut = `${formattedNumber}-${rutVerifier}`;
+      this.searchForm.patchValue({ rutClient: formattedRut });
+    }
+  }
+  // Nueva función para llamar a filterTableData()
+  search() {
+    this.documentos = this.filterTableData();
+    console.log('Documentos filtrados:', this.documentos);
+    // Puedes asignar los documentos filtrados a otra variable si es necesario
   }
   obtenerDocumentos(){
     this.documentService.obtenerDatos().subscribe((data)=>{

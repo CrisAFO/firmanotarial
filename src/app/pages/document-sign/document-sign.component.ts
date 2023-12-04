@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UploadDocService } from 'src/app/services/upload-doc.service';
 
@@ -13,27 +14,59 @@ export class DocumentSignComponent implements OnInit{
   showModal = false;
   showStatus = false;
   searchText: string = '';
+  searchForm: FormGroup;
+
   filteredDocumentos: any = []; // Almacena los datos filtrados
   currentPage: number = 1;
   totalDocumentos: number = this.documentos.length;
   constructor( 
       private documentService: UploadDocService,
       private router: Router,
-      private route: ActivatedRoute){}
+      private route: ActivatedRoute,
+      private formBuilder: FormBuilder){
+        this.searchForm = this.formBuilder.group({
+          rutClient: ['', Validators.required]
+        });
+      }
   ngOnInit(): void {
     this.showModal=!this.showModal;
     this.obtenerDocumentos();
   }
+  search() {
+    this.documentos = this.filterTableData();
+    console.log('Documentos filtrados:', this.documentos);
+    // Puedes asignar los documentos filtrados a otra variable si es necesario
+  }
   filterTableData() {
-      if (this.searchText) {
-        // Filtra la tabla solo si hay un término de búsqueda
-        this.filteredDocumentos = this.documentos.filter((documento:any) => {
-          return documento.rutClient.toLowerCase().includes(this.searchText.toLowerCase());
-        });
-      } else {
-        // Si no hay texto de búsqueda, muestra los datos originales
-        this.filteredDocumentos = this.documentos;
-      }
+    const searchTerm = this.searchForm.get('rutClient')?.value.toLowerCase();
+    console.log(searchTerm)
+    // Filtrar documentos basado en el rutClient
+    if (searchTerm.trim() === '') {
+      // Si el campo de búsqueda está vacío, mostrar todos los documentos
+      // Puedes ajustar esta lógica según tus necesidades
+      return this.documentos;
+    } else {
+      return this.documentos.filter((doc:any) => doc.rutClient.toLowerCase().includes(searchTerm));
+    }
+  }
+  formatRut() {
+    // Lógica para formatear el Rut de Chile
+    const rut = this.searchForm.get('rutClient')?.value;
+    if (rut) {
+      // Limpiar caracteres no válidos
+      const cleanedRut = rut.replace(/[^\dkK]+/g, '');
+  
+      // Dividir el rut en parte numérica y dígito verificador
+      const rutNumber = cleanedRut.slice(0, -1);
+      const rutVerifier = cleanedRut.slice(-1);
+  
+      // Formatear parte numérica con puntos
+      const formattedNumber = rutNumber.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  
+      // Unir las partes con guion y actualizar el valor del formulario
+      const formattedRut = `${formattedNumber}-${rutVerifier}`;
+      this.searchForm.patchValue({ rutClient: formattedRut });
+    }
   }
   obtenerDocumentos(){
     this.documentService.obtenerDatos().subscribe((data)=>{

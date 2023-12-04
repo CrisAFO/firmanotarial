@@ -19,7 +19,7 @@ export class SignDocumentService {
         'Authorization': `Bearer ${this.token}`
       }
     }).pipe(
-      map((resp: any) => resp.message)
+      map((resp: any) => resp.data.signTemplate.base64Document)
     );
 
   }
